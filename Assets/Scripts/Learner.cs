@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine.UI;
 using System.Security.Cryptography;
+using UnityEngine.SceneManagement;
 
 public class Learner : MonoBehaviour
 {
@@ -75,35 +76,46 @@ public class Learner : MonoBehaviour
     /// Dict sumtype met percentage</returns>
     public Dictionary<string,float> getPercentagesForUse()
     {
+        
         Dictionary<string, float> dictSt = new Dictionary<string, float>();
-        string url = "http://athena.fhict.nl/users/i292193/mathwars/getPercentages.php?accountID=" + accountID;
-        WWW www = new WWW(url);
-        while (!www.isDone)
+        if (isLoggedIn)
         {
-        }
-        if (www.text != "")
-        {
-            // extract sorted keys and values
-            string[] usages = www.text.Split(';');
-            List<string> keys = new List<string>();
-            List<float> values = new List<float>();
-            keys.Add(usages[0]);
-            values.Add(float.Parse(usages[1]));
-            keys.Add(usages[2]);
-            values.Add(float.Parse(usages[3]));
-            keys.Add(usages[4]);
-            values.Add(float.Parse(usages[5]));
-            keys.Add(usages[6]);
-            values.Add(float.Parse(usages[7]));
-            //reverse values
-            values.Reverse();
-            int i = 0;
-            // insert in dictionary with keys and reversed value order
-            foreach (string key in keys)
+            Debug.Log("getting percentages for use.");
+            string url = "http://athena.fhict.nl/users/i292193/mathwars/getPercentages.php?accountID=" + accountID;
+            WWW www = new WWW(url);
+            while (!www.isDone)
             {
-                dictSt.Add(key, values[i]);
-                i++;
-            }   
+            }
+            if (www.text != "")
+            {
+                // extract sorted keys and values
+                string[] usages = www.text.Split(';');
+                List<string> keys = new List<string>();
+                List<float> values = new List<float>();
+                keys.Add(usages[0]);
+                values.Add(float.Parse(usages[1]));
+                keys.Add(usages[2]);
+                values.Add(float.Parse(usages[3]));
+                keys.Add(usages[4]);
+                values.Add(float.Parse(usages[5]));
+                keys.Add(usages[6]);
+                values.Add(float.Parse(usages[7]));
+                //reverse values
+                values.Reverse();
+                int i = 0;
+                // insert in dictionary with keys and reversed value order
+                foreach (string key in keys)
+                {
+                    dictSt.Add(key, values[i]);
+                    i++;
+                }
+            }
+        }
+        else
+        { dictSt.Add(":", 25f);
+            dictSt.Add("+", 25f);
+            dictSt.Add("x", 25f);
+            dictSt.Add("-", 25f);
         }
         return dictSt;
     }
@@ -137,16 +149,16 @@ public class Learner : MonoBehaviour
 	public void btnGuestPress()
 	{
 		this.accountID = 0;
-		Application.LoadLevel("mainmenu");
+        SceneManager.LoadScene("mainmenu");
 	}
 	
 	public void btnstartPress()
 	{
         if (previousHighscore > 0)
-        { Application.LoadLevel("generator"); }
+        { SceneManager.LoadScene("generator"); }
         else
         {
-            Application.LoadLevel("tutorial");
+            SceneManager.LoadScene("tutorial");
         }
 	}
 
@@ -185,7 +197,7 @@ public class Learner : MonoBehaviour
 					this.isLoggedIn=true;
                     getUsages(accountID);
                     previousHighscore = System.Int32.Parse(wwwresponse[1]);
-                    Application.LoadLevel("mainmenu");
+                    SceneManager.LoadScene("mainmenu");
                     return true;
                 }
                 else
